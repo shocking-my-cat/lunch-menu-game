@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { RotateCcw, Sparkles } from "lucide-react"
+import { RotateCcw, Sparkles, Utensils } from "lucide-react"
 import {
   BASE_QUESTIONS,
   FOLLOWUP_QUESTIONS,
@@ -12,12 +12,18 @@ import {
 } from "@/lib/lunch-data"
 import { ChatInput } from "./chat-input"
 import { IdleScreen } from "./idle-screen"
-import { MessageBubble, TypingBubble, type ChatMessage } from "./message-bubble"
+import {
+  MessageBubble,
+  TypingBubble,
+  RecommendingBubble,
+  type ChatMessage,
+} from "./message-bubble"
 import { ResultView, DoneView } from "./result-view"
 
-type Phase = "idle" | "chat" | "result" | "done"
+export type Phase = "idle" | "chat" | "recommending" | "result" | "done"
 
-const TYPING_MS = 700
+const TYPING_MS = 650
+const RECOMMEND_DELAY_MS = 1200
 
 export function LunchApp() {
   const [phase, setPhase] = useState<Phase>("idle")
@@ -36,28 +42,50 @@ export function LunchApp() {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  const nextId = () => `m${idRef.current++}`
+  const nextId = () => `m_${Date.now()}_${idRef.current++}`
 
   // 새 메시지/상태 변화 시 항상 최신 대화가 보이도록 스크롤
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" })
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior: "smooth",
+      })
+    }
   }, [messages, typing, phase, recommendations])
 
-  useEffect(() => () => timerRef.current && clearTimeout(timerRef.current), [])
+  // 언마운트 시 활성 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current)
+    }
+  }, [])
 
   const postQuestion = (qs: Question[], index: number) => {
     setTyping(true)
     setInputEnabled(false)
+
+    if (timerRef.current) clearTimeout(timerRef.current)
     timerRef.current = setTimeout(() => {
       setTyping(false)
-      setMessages((prev) => [...prev, { id: nextId(), role: "assistant", text: qs[index].prompt }])
+      setMessages((prev) => [
+        ...prev,
+        { id: nextId(), role: "assistant", text: qs[index].prompt },
+      ])
       setInputEnabled(true)
     }, TYPING_MS)
   }
 
   const start = () => {
+    if (timerRef.current) clearTimeout(timerRef.current)
     setPhase("chat")
-    setMessages([{ id: nextId(), role: "assistant", text: "좋아요! 몇 가지만 물어볼게요. 편하게 골라줘요." }])
+    setMessages([
+      {
+        id: nextId(),
+        role: "assistant",
+        text: "좋아요! 오늘 입맛과 상황에 딱 맞는 점심 메뉴를 찾아드릴게요. 편하게 답해주세요 🍽️",
+      },
+    ])
     setQuestions(BASE_QUESTIONS)
     setCurrentIndex(0)
     setAnswers([])
@@ -69,18 +97,21 @@ export function LunchApp() {
   }
 
   const finish = (allAnswers: Answer[], excludeList: string[]) => {
-    setTyping(true)
+    setPhase("recommending")
     setInputEnabled(false)
+    setTyping(false)
+
+    if (timerRef.current) clearTimeout(timerRef.current)
     timerRef.current = setTimeout(() => {
-      setTyping(false)
       const recs = recommend(allAnswers, excludeList)
       setRecommendations(recs)
       setPhase("result")
-    }, 1100)
+    }, RECOMMEND_DELAY_MS)
   }
 
   const handleAnswer = (value: string, tags: string[]) => {
-    if (!inputEnabled) return
+    if (!inputEnabled || phase !== "chat") return
+
     const q = questions[currentIndex]
     const answer: Answer = { questionId: q.id, value, tags }
     const nextAnswers = [...answers, answer]
@@ -111,8 +142,12 @@ export function LunchApp() {
     setPhase("chat")
     setMessages((prev) => [
       ...prev,
-      { id: nextId(), role: "user", text: "다른 거 없어요?" },
-      { id: nextId(), role: "assistant", text: "알겠어요, 딱 두 개만 더 물어볼게요!" },
+      { id: nextId(), role: "user", text: "음... 다른 추천은 없을까요?" },
+      {
+        id: nextId(),
+        role: "assistant",
+        text: "알겠어요! 방금 메뉴는 제외하고 딱 2가지만 더 여쭤볼게요.",
+      },
     ])
     postQuestion(FOLLOWUP_QUESTIONS, 0)
   }
@@ -122,32 +157,43 @@ export function LunchApp() {
     setPhase("idle")
     setMessages([])
     setTyping(false)
+    setInputEnabled(false)
     setRecommendations([])
     setAcceptedMenu(null)
+    setRound(1)
   }
 
   const total = questions.length
   const step = Math.min(currentIndex + 1, total)
+  const isFollowup = round > 1
 
   return (
-    <div className="flex h-[760px] w-full max-w-3xl flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-xl shadow-foreground/5">
+    <div className="flex h-[760px] w-full max-w-3xl flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-2xl shadow-foreground/5 transition-all">
       {/* 헤더 */}
-      <header className="flex items-center justify-between border-b border-border px-5 py-3.5">
+      <header className="flex items-center justify-between border-b border-border bg-card/80 px-5 py-3.5 backdrop-blur-sm">
         <div className="flex items-center gap-2">
-          <Sparkles className="size-4 text-primary" />
-          <span className="font-serif text-lg tracking-tight text-foreground">점심 메뉴 스무고개</span>
+          <div className="flex size-8 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <Utensils className="size-4" />
+          </div>
+          <div>
+            <span className="font-serif text-lg font-bold tracking-tight text-foreground">
+              점심 메뉴 스무고개
+            </span>
+          </div>
         </div>
+
         <div className="flex items-center gap-3">
-          {phase === "chat" && (
-            <span className="rounded-full bg-secondary px-2.5 py-1 text-xs font-medium tabular-nums text-muted-foreground">
-              질문 {step}/{total}
+          {(phase === "chat" || phase === "recommending") && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1 text-xs font-semibold tabular-nums text-secondary-foreground border border-border/50">
+              <Sparkles className="size-3 text-primary" />
+              {isFollowup ? `재추천 질문 ${step}/${total}` : `질문 ${step}/${total}`}
             </span>
           )}
           {phase !== "idle" && (
             <button
               type="button"
               onClick={reset}
-              className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-muted-foreground transition hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium text-muted-foreground transition hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <RotateCcw className="size-3.5" />
               처음부터
@@ -156,17 +202,20 @@ export function LunchApp() {
         </div>
       </header>
 
-      {/* 본문 */}
+      {/* 본문 대화 영역 */}
       {phase === "idle" ? (
         <div className="flex-1 overflow-hidden">
           <IdleScreen onStart={start} />
         </div>
       ) : (
-        <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto px-5 py-6">
+        <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto px-5 py-6 scroll-smooth">
           {messages.map((m) => (
             <MessageBubble key={m.id} message={m} />
           ))}
+
           {typing && <TypingBubble />}
+
+          {phase === "recommending" && <RecommendingBubble />}
 
           {phase === "result" && recommendations.length > 0 && (
             <ResultView
@@ -178,16 +227,16 @@ export function LunchApp() {
           )}
 
           {phase === "done" && acceptedMenu && (
-            <div className="pt-4">
+            <div className="pt-2 animate-in fade-in zoom-in-95 duration-300">
               <DoneView menu={acceptedMenu} onRestart={reset} />
             </div>
           )}
         </div>
       )}
 
-      {/* 입력 영역 (질문 단계에서만 노출) */}
+      {/* 입력 영역 (질문 진행 단계에서만 노출) */}
       {phase === "chat" && (
-        <footer className="border-t border-border bg-card px-5 py-4">
+        <footer className="border-t border-border bg-card/95 p-4 backdrop-blur-sm">
           <ChatInput
             choices={questions[currentIndex]?.choices ?? []}
             disabled={!inputEnabled}
