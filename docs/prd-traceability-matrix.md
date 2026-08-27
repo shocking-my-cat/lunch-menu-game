@@ -10,12 +10,12 @@
 |:---:|:---|:---|:---:|:---|:---:|
 | **REQ-01** | **목표 및 성공 조건** | AI 스무고개 대화 후 2가지 메뉴 추천 → [Yes] 클릭 시 성공(“축하합니다!”) | Sprint 1, 4 | `lunch-app.tsx`, `result-view.tsx` | ✅ Done |
 | **REQ-02** | **AI 주도 대화 (7턴)** | AI가 먼저 질문하고 사용자가 답변하는 스무고개식 대화 흐름 | Sprint 1 | `lunch-app.tsx`, `lunch-data.ts` | ✅ Done |
-| **REQ-03** | **공감 및 위트 있는 대응** | 인원, 분위기, 식성 등 다양한 사용자 입력에 대한 유연한 반응 | Sprint 2 | `keyword-mapper.ts`, `recommend-engine.ts` | ⏳ Ready |
+| **REQ-03** | **공감 및 위트 있는 대응** | 인원, 분위기, 식성 등 다양한 사용자 입력에 대한 유연한 반응 | Sprint 2 | `keyword-mapper.ts`, `recommend-engine.ts` | ✅ Done |
 | **REQ-04** | **단일 화면 구조 (SPA)** | 제미나이/ChatGPT 형태의 심플한 질문-입력 단일 화면 | Sprint 1, 4 | `lunch-app.tsx`, `app/page.tsx` | ✅ Done |
 | **REQ-05** | **초기 Idle 화면** | “내가 점심 메뉴 추천해줌” 문구 + “시작하기” CTA + 마스코트 | Sprint 4 | `idle-screen.tsx`, `mascot.tsx` | ✅ Done |
-| **REQ-06** | **동적/상황별 질문 변화** | 인원, 누구랑, 상황 등에 따른 유기적인 질문 전개 | Sprint 1, 2 | `lunch-data.ts`, `recommend-engine.ts` | 🔄 In Progress |
+| **REQ-06** | **동적/상황별 질문 변화** | 인원, 누구랑, 상황 등에 따른 유기적인 질문 전개 | Sprint 1, 2 | `lunch-data.ts`, `recommend-engine.ts` | ✅ Done |
 | **REQ-07** | **추천 로딩 상태** | 메뉴 도출 전 “메뉴 추천 중...” 로딩 화면 노출 | Sprint 1, 3 | `lunch-app.tsx`, `message-bubble.tsx` | ✅ Done |
-| **REQ-08** | **2가지 메뉴 추천 (1/2순위)** | 결과 화면에 1순위, 2순위 메뉴 카드 및 추천 사유 표시 | Sprint 2, 4 | `result-view.tsx`, `recommend-engine.ts` | 🔄 In Progress |
+| **REQ-08** | **2가지 메뉴 추천 (1/2순위)** | 결과 화면에 1순위, 2순위 메뉴 카드 및 추천 사유 표시 | Sprint 2, 4 | `result-view.tsx`, `recommend-engine.ts` | ✅ Done |
 | **REQ-09** | **결과 피드백 (Yes/No)** | “추천받은 메뉴가 마음에 들었나요” + [Yes], [No] 버튼 | Sprint 1, 4 | `result-view.tsx` | ✅ Done |
 | **REQ-10** | **재추천 루프 (No 선택 시)** | 이전 추천 메뉴 제외 + 2개 내외 추가 질문 후 재추천 | Sprint 1, 2 | `lunch-app.tsx`, `lunch-data.ts` | ✅ Done |
 | **EXC-01** | **예외 처리 1: 50자 제한** | 입력 최대 50자 제한, 실시간 글자수 및 초과 방지 | Sprint 3 | `chat-input.tsx` | ⏳ Ready |

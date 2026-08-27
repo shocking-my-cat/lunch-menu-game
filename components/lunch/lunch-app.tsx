@@ -5,11 +5,11 @@ import { RotateCcw, Sparkles, Utensils } from "lucide-react"
 import {
   BASE_QUESTIONS,
   FOLLOWUP_QUESTIONS,
-  recommend,
   type Answer,
   type Menu,
   type Question,
 } from "@/lib/lunch-data"
+import { recommend } from "@/lib/recommend-engine"
 import { ChatInput } from "./chat-input"
 import { IdleScreen } from "./idle-screen"
 import {
@@ -109,11 +109,11 @@ export function LunchApp() {
     }, RECOMMEND_DELAY_MS)
   }
 
-  const handleAnswer = (value: string, tags: string[]) => {
+  const handleAnswer = (value: string, tags: string[], negativeTags?: string[]) => {
     if (!inputEnabled || phase !== "chat") return
 
     const q = questions[currentIndex]
-    const answer: Answer = { questionId: q.id, value, tags }
+    const answer: Answer = { questionId: q.id, value, tags, negativeTags }
     const nextAnswers = [...answers, answer]
     setAnswers(nextAnswers)
     setMessages((prev) => [...prev, { id: nextId(), role: "user", text: value }])

@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { SendHorizontal } from "lucide-react"
 import type { Choice } from "@/lib/lunch-data"
+import { extractKeywordsAndTags } from "@/lib/keyword-mapper"
 import { cn } from "@/lib/utils"
 
 const MAX_LEN = 50
@@ -14,7 +15,7 @@ export function ChatInput({
 }: {
   choices: Choice[]
   disabled: boolean
-  onAnswer: (value: string, tags: string[]) => void
+  onAnswer: (value: string, tags: string[], negativeTags?: string[]) => void
 }) {
   const [value, setValue] = useState("")
   const [composing, setComposing] = useState(false)
@@ -22,7 +23,8 @@ export function ChatInput({
   const submitText = () => {
     const trimmed = value.trim()
     if (!trimmed || disabled) return
-    onAnswer(trimmed, []) // 자유 입력은 태그 없이 답변 기록 (추천 로직에 중립)
+    const { positiveTags, negativeTags } = extractKeywordsAndTags(trimmed)
+    onAnswer(trimmed, positiveTags, negativeTags)
     setValue("")
   }
 
@@ -35,7 +37,7 @@ export function ChatInput({
             key={c.label}
             type="button"
             disabled={disabled}
-            onClick={() => onAnswer(c.label, c.tags)}
+            onClick={() => onAnswer(c.label, c.tags, c.negativeTags)}
             className={cn(
               "rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition",
               "hover:border-primary hover:bg-primary/5 hover:text-primary",

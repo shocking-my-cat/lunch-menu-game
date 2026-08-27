@@ -65,9 +65,9 @@ gantt
     section Sprint 1
     대화 흐름 및 상태 머신 구축 :done, s1, 2026-08-26, 1d
     section Sprint 2
-    자연어 매핑 및 추천 알고리즘 :active, s2, after s1, 1d
+    자연어 매핑 및 추천 알고리즘 :done, s2, after s1, 1d
     section Sprint 3
-    5대 예외 처리 및 에러 방어 체계 :s3, after s2, 1d
+    5대 예외 처리 및 에러 방어 체계 :active, s3, after s2, 1d
     section Sprint 4
     UI/UX 고도화, 데스크톱 최적화 및 QA :s4, after s3, 1d
 ```
@@ -76,6 +76,7 @@ gantt
 
 ### 🏃 Sprint 1: 핵심 대화 인터랙션 & 상태 머신 (Core Interaction)
 - **목표**: PRD 명세에 맞춘 대화 상태 흐름(State Machine) 완성과 턴 기반 질문/답변 인터랙션 구축
+- **상태**: ✅ **완료 (Completed)**
 - **주요 태스크**:
   - 대화 페이즈 정의 (`idle` → `chat` → `recommending` → `result` → `done` / `followup`)
   - AI 질문 턴 전환 및 타이핑 애니메이션(Typing Bubble) 제어
@@ -90,15 +91,18 @@ gantt
 
 ### 🏃 Sprint 2: 텍스트 분석 & 추천 알고리즘 고도화 (Recommendation Engine)
 - **목표**: 사용자의 다양한 표현(인원, 분위기, 식성, 반박 등)을 반영하는 정교한 2가지 메뉴(1순위/2순위) 추천
+- **상태**: ✅ **완료 (Completed)**
 - **주요 태스크**:
-  - 메뉴 데이터셋 확장 (카테고리, 맛, 상황, 인원, 온도, 가격대 등 다차원 태깅)
-  - 사용자 자유 입력 텍스트 형태소/키워드 매퍼 (`lib/keyword-mapper.ts`)
-  - 점수 가중치 기반 메뉴 스코어링 알고리즘
-  - 1순위/2순위 추천 메뉴와 추천 사유(위트 있는 공감 멘트) 생성
-  - 1차 추천 거절([No]) 시 이전 메뉴 제외 및 2턴 추가 질문 기반 재추천 로직
+  - 24종 메뉴 데이터셋 확장 (카테고리, 맛, 상황, 인원, 온도, 가격대 등 다차원 태깅)
+  - 사용자 자유 입력 텍스트 키워드 매퍼 (`lib/keyword-mapper.ts`)
+  - 점수 가중치 및 부정 키워드 페널티 기반 메뉴 스코어링 알고리즘
+  - 1순위/2순위 추천 메뉴와 맞춤형 추천 사유(동적 위트 멘트) 생성
+  - 1차 추천 거절([No]) 시 이전 메뉴 제외 및 2턴 추가 질문(x2.5 가중치) 기반 재추천 로직
 - **산출물**:
-  - `lib/lunch-data.ts` (메뉴 데이터베이스 및 태그 체계)
-  - `lib/recommend-engine.ts` (추천 및 텍스트 매칭 엔진)
+  - `lib/lunch-data.ts` (24종 메뉴 데이터베이스 및 태그 체계)
+  - `lib/keyword-mapper.ts` (자연어 긍정/부정 태그 추출기)
+  - `lib/recommend-engine.ts` (가중치 스코어링 및 추천 사유 생성 엔진)
+  - `components/lunch/result-view.tsx` (1/2순위 뱃지 및 추천 이유 UI)
 - **상세 문서**: [Sprint 2 상세 계획](./sprints/sprint-2-recommendation-engine.md)
 
 ---

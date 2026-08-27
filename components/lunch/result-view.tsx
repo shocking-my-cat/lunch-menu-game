@@ -11,26 +11,38 @@ function MenuCard({ menu, rank }: { menu: Menu; rank: 1 | 2 }) {
       className={cn(
         "flex flex-col gap-3 rounded-2xl border p-5 transition duration-300 animate-in fade-in slide-in-from-bottom-3",
         isFirst
-          ? "border-primary/40 bg-primary/5 shadow-sm"
+          ? "border-primary/40 bg-primary/5 shadow-sm ring-1 ring-primary/20"
           : "border-border bg-card",
       )}
     >
-      <div className="flex items-center gap-2">
-        <span
-          className={cn(
-            "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold",
-            isFirst
-              ? "bg-primary text-primary-foreground"
-              : "bg-secondary text-secondary-foreground",
-          )}
-        >
-          {isFirst ? <Trophy className="size-3.5" /> : <Medal className="size-3.5" />}
-          {isFirst ? "1순위" : "2순위"}
-        </span>
-        <span className="text-xs text-muted-foreground">{menu.emojiHint}</span>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5">
+          <span
+            className={cn(
+              "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold",
+              isFirst
+                ? "bg-primary text-primary-foreground"
+                : "bg-secondary text-secondary-foreground",
+            )}
+          >
+            {isFirst ? <Trophy className="size-3.5" /> : <Medal className="size-3.5" />}
+            {isFirst ? "1순위 추천" : "2순위 대안"}
+          </span>
+          <span className="rounded-md bg-secondary/80 px-2 py-0.5 text-[11px] font-medium text-secondary-foreground">
+            {menu.category}
+          </span>
+        </div>
+        <span className="text-xs font-medium text-primary/80">{menu.emojiHint}</span>
       </div>
+
       <h3 className="font-serif text-3xl tracking-tight text-foreground">{menu.name}</h3>
       <p className="text-pretty text-sm leading-relaxed text-muted-foreground">{menu.blurb}</p>
+
+      {menu.matchReason && (
+        <div className="mt-1 rounded-xl bg-background/80 p-2.5 text-xs font-medium text-foreground/90 border border-border/60">
+          {menu.matchReason}
+        </div>
+      )}
     </div>
   )
 }
