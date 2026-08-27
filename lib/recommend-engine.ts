@@ -103,8 +103,17 @@ export function recommend(answers: Answer[], exclude: string[] = []): Menu[] {
   // 만약 제외 목록 누적으로 후보가 2개 미만이면 전체 풀에서 Fallback 선별
   const targetPool = candidatePool.length >= 2 ? candidatePool : MENUS
 
+  const userTextCombined = answers.map((a) => a.value || "").join(" ")
+
   const scored = targetPool.map((menu) => {
     let score = 0
+    let directMention = false
+
+    // 사용자가 대화 중 직접 언급한 메뉴 이름이 있는 경우 압도적 가산점(+100점)
+    if (userTextCombined.includes(menu.name) || (menu.name.length >= 2 && userTextCombined.includes(menu.name.slice(0, 2)))) {
+      score += 100.0
+      directMention = true
+    }
 
     // 긍정 태그 일치 가산
     for (const t of menu.tags) {
@@ -123,7 +132,7 @@ export function recommend(answers: Answer[], exclude: string[] = []): Menu[] {
     // 0~0.3의 미세한 지터(Jitter)로 완전 동점 시 매번 새로운 경험 제공
     score += Math.random() * 0.35
 
-    return { menu, score }
+    return { menu, score, directMention }
   })
 
   // 3. 점수 내림차순 정렬
@@ -147,7 +156,9 @@ export function recommend(answers: Answer[], exclude: string[] = []): Menu[] {
   // 최종 메뉴 객체에 맞춤형 추천 사유 주입
   const result1: Menu = {
     ...top1,
-    matchReason: generateMatchReason(top1, allPositiveTags),
+    matchReason: scored[0].directMention
+      ? `💡 말씀하신 '${top1.name}'(이)가 오늘 입맛에 딱 맞춘 1순위 최우선 선택!`
+      : generateMatchReason(top1, allPositiveTags),
   }
 
   const result2: Menu = {
