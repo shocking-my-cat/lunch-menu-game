@@ -224,18 +224,14 @@ export function LunchApp() {
     const nextMessages = [...messages, userMsg]
     setMessages(nextMessages)
 
-    const result = await postAIQuestion(currentIndex, nextMessages, questions)
-    
-    // 엉뚱하거나 모호한 답변으로 재질문된 경우 턴 카운트를 올리지 않음 (Sprint AI-2)
-    if (result?.isAmbiguous) {
-      return
-    }
-
     const nextIndex = currentIndex + 1
     const totalSteps = isAiMode ? MAX_AI_STEPS : questions.length
 
     if (nextIndex < totalSteps) {
-      setCurrentIndex(nextIndex)
+      const result = await postAIQuestion(nextIndex, nextMessages, questions)
+      if (!result?.isAmbiguous) {
+        setCurrentIndex(nextIndex)
+      }
     } else {
       finish(nextAnswers, excluded)
     }

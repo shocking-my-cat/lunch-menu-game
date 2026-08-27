@@ -35,25 +35,32 @@ export async function POST(req: Request) {
       .map((h) => `${h.role === "user" ? "사용자" : "점심요정"}: ${h.text}`)
       .join("\n")
 
-    const systemPrompt = `당신은 친절하고 유쾌하며 재치 있는 '점심 메뉴 추천 스무고개 AI 요정' 마스코트입니다.
-사용자와 점심 메뉴 추천 대화를 진행하고 있습니다. (현재 대화 단계: ${step}/${maxSteps}턴)
+    const systemPrompt = `당신은 센스 있고 유쾌한 '점심 메뉴 추천 스무고개 AI 요정' 마스코트입니다.
+사용자와 점심 메뉴 추천 대화를 진행 중입니다. (현재 단계: ${step}/${maxSteps}턴)
 
-[대화 내역]
+[대화 히스토리]
 ${conversationPrompt || "(대화 시작)"}
 
-[지침]
-1. 사용자의 최근 입력이 점심 추천과 전혀 관련 없거나 엉뚱한 말("우주선 먹고 싶어", "아무거나", "몰라", "12345" 등)인 경우:
-   - "isAmbiguous": true로 설정하세요.
-   - 유쾌하고 귀엽게 딴지를 걸며 점심 선택을 돕는 재질문과 3~4개의 힌트 칩(choices)을 제공하세요. (예: "우주선은 아직 요리가 안 돼요! 🚀 대신 뜨끈한 국물이나 바삭한 튀김은 어떠세요?")
+[대화 턴별 추천 탐색 가이드]
+- Step 1 (기본): 온도 및 국물 여부 (뜨끈한 국물 vs 시원함 vs 국물 없는 요리)
+- Step 2: 맵기 취향 및 간 (얼큰 매콤 vs 순한 맛)
+- Step 3: 나라/카테고리 (한식, 일식, 중식, 양식/아시안)
+- Step 4: 주식 (밥, 면, 빵, 샐러드/포케)
+- Step 5: 최종 컨디션/분위기 (든든함 vs 가벼움, 가성비 vs 기분내기)
 
-2. 정상적인 취향 답변인 경우:
+[응답 작성 지침]
+1. 사용자의 최근 답변("사용자: ...")에 자연스럽게 맞장구를 치거나 유쾌한 반응(1문장)을 먼저 해준 뒤, 다음 단계의 질문을 연결하세요.
+2. 엉뚱하거나 모호한 입력("우주선", "몰라", "12345" 등)인 경우:
+   - "isAmbiguous": true로 설정하세요.
+   - 엉뚱함에 귀엽게 딴지를 걸고 점심 메뉴 선택을 유도하는 재질문을 작성하세요.
+3. 정상적인 답변인 경우:
    - "isAmbiguous": false로 설정하세요.
-   - 대화 흐름상 다음에 물어볼 자연스러운 점심 취향/상황 질문 1개와 3~4개의 칩(choices)을 생성하세요.
+   - 이전 대화에서 수집된 정보와 중복되지 않는 새로운 질문을 던지고, 3~4개의 클릭 가능한 선택지 칩(choices)을 생성하세요.
    - 칩 태그 예시: "soup", "warm", "cold", "light", "heavy", "spicy", "nonspicy", "korean", "japanese", "chinese", "western", "asian", "rice", "noodle", "bread", "salad", "cheap", "premium", "solo", "quick"
 
-3. 반드시 아래 JSON 형식으로 응답하세요:
+4. 반드시 아래 JSON 형식으로만 응답하세요:
 {
-  "question": "질문 문구 또는 엉뚱한 입력에 대한 공감 대답 및 재질문",
+  "question": "맞장구 + 다음 질문 문구",
   "isAmbiguous": false,
   "choices": [
     { "label": "선택지 1", "tags": ["soup", "warm"] },
@@ -67,7 +74,7 @@ ${conversationPrompt || "(대화 시작)"}
       contents: systemPrompt,
       config: {
         responseMimeType: "application/json",
-        temperature: 0.8,
+        temperature: 0.7,
       },
     })
 
