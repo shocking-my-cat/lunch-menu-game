@@ -181,12 +181,7 @@ export function LunchApp() {
     if (timerRef.current) clearTimeout(timerRef.current)
     clearTimeoutGuard()
     setPhase("chat")
-    const initialMessage: ChatMessage = {
-      id: nextId(),
-      role: "assistant",
-      text: "좋아요! 오늘 입맛과 상황에 딱 맞는 점심 메뉴를 AI가 맞춰볼게요. 편하게 답해주세요 🍽️",
-    }
-    setMessages([initialMessage])
+    setMessages([])
     setQuestions(BASE_QUESTIONS)
     setCurrentIndex(0)
     setAnswers([])
@@ -199,7 +194,7 @@ export function LunchApp() {
     // 날씨 정보 탐지
     fetchCurrentWeather().then((w) => setWeather(w))
 
-    postAIQuestion(0, [initialMessage], BASE_QUESTIONS)
+    postAIQuestion(0, [], BASE_QUESTIONS)
   }
 
   const handleAnswer = async (value: string, tags: string[], negativeTags?: string[]) => {
