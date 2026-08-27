@@ -13,9 +13,9 @@ docs/
 ├── prd-traceability-matrix.md          # PRD 요구사항 추적 매트릭스 및 검증 기준
 └── sprints/                            # 스프린트별 상세 실행 계획
     ├── sprint-1-core-interaction.md    # Sprint 1: 핵심 대화 인터랙션 & 상태 머신 [✅ 완료]
-    ├── sprint-2-recommendation-engine.md # Sprint 2: 텍스트 분석 & 추천 알고리즘 고도화 [⏳ 대기]
-    ├── sprint-3-exception-handling.md  # Sprint 3: 5대 필수 예외 처리 & 안정성 확보 [⏳ 대기]
-    └── sprint-4-ui-ux-polish-qa.md     # Sprint 4: 데스크톱 UI/UX 완성 & 종합 QA [⏳ 대기]
+    ├── sprint-2-recommendation-engine.md # Sprint 2: 텍스트 분석 & 추천 알고리즘 고도화 [✅ 완료]
+    ├── sprint-3-exception-handling.md  # Sprint 3: 5대 필수 예외 처리 & 안정성 확보 [✅ 완료]
+    └── sprint-4-ui-ux-polish-qa.md     # Sprint 4: 데스크톱 UI/UX 완성 & 종합 QA [✅ 완료]
 ```
 
 ---
