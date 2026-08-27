@@ -34,3 +34,4 @@ docs/
 | **[Sprint AI-2](./gemini-ai-enhancement-plan.md)** | 지능형 예외 입력 공감 대응 | ✅ **Done** | 엉뚱한 입력 재질문 유도, 턴 카운터 보존, 마스코트 페르소나 |
 | **[Sprint AI-3](./gemini-ai-enhancement-plan.md)** | 실시간 날씨 기반 추천 가중치 | ✅ **Done** | Geolocation + Open-Meteo, 날씨 뱃지 UI, 날씨 가중치 주입 |
 | **[Landing Page](./design-system-enhancement-plan.md)** | 톤앤매너 기반 랜딩페이지 & CTA 인입 | ✅ **Done** | `LandingView` 구축, Hero/Feature/Review/CTA, 대화 서비스 전환 |
+| **[Wide Spectrum AI](./gemini-ai-enhancement-plan.md)** | AI 대화 폭 확대 & 36종 메뉴 확장 | ✅ **Done** | 7턴 대화 확장, 숙취/다이어트/감정 꼬리물기, 36종 메뉴 DB |

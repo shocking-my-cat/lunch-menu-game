@@ -29,7 +29,7 @@ export type Phase = "idle" | "chat" | "recommending" | "result" | "done"
 
 const TYPING_MS = 650
 const TIMEOUT_THRESHOLD_MS = 10000 // 10초 이상 지연 시 타임아웃 처리 (EXC-03)
-const MAX_AI_STEPS = 5 // AI 대화 스무고개 최대 턴 수
+const MAX_AI_STEPS = 7 // AI 대화 스무고개 최대 턴 수 (대화 폭 7턴으로 확대)
 
 export function LunchApp({ initialStart = false }: { initialStart?: boolean }) {
   const [phase, setPhase] = useState<Phase>("idle")
