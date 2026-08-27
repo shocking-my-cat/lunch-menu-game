@@ -1,12 +1,11 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { Jua, Noto_Sans_KR } from 'next/font/google'
+import { Plus_Jakarta_Sans, Noto_Sans_KR } from 'next/font/google'
 import './globals.css'
 
-const jua = Jua({
-  weight: '400',
+const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
-  variable: '--font-jua',
+  variable: '--font-plus-jakarta',
   display: 'swap',
 })
 
@@ -18,8 +17,8 @@ const notoSansKr = Noto_Sans_KR({
 })
 
 export const metadata: Metadata = {
-  title: '점심 메뉴 스무고개 | AI가 골라주는 오늘 점심 추천',
-  description: '내가 점심 메뉴 추천해줌! 스무고개 대화로 입맛과 상황에 딱 맞는 점심 메뉴 1순위와 2순위를 골라드려요.',
+  title: '내가 점심 메뉴 추천해줌 | Lunch Mate AI',
+  description: '점심 메뉴를 함께 고민해주는 위트 있고 재치 넘치는 AI 친구! 스무고개 대화로 입맛과 상황에 딱 맞는 점심 메뉴를 추천해드려요 🍽️',
   generator: 'v0.app',
   icons: {
     icon: [
@@ -43,8 +42,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   colorScheme: 'light dark',
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: 'white' },
-    { media: '(prefers-color-scheme: dark)', color: 'black' },
+    { media: '(prefers-color-scheme: light)', color: '#FBF9F8' },
+    { media: '(prefers-color-scheme: dark)', color: '#1A1A1A' },
   ],
 }
 
@@ -54,7 +53,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="ko" className={`bg-background ${jua.variable} ${notoSansKr.variable}`}>
+    <html lang="ko" className={`bg-background ${plusJakartaSans.variable} ${notoSansKr.variable}`}>
       <body className="font-sans antialiased">
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}

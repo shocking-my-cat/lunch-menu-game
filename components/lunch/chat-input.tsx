@@ -71,13 +71,13 @@ export function ChatInput({
     <div className="flex flex-col gap-3 relative">
       {/* 빈 입력 경고 툴팁 (EXC-02) */}
       {emptyWarning && (
-        <div className="absolute -top-10 left-4 z-20 flex items-center gap-1.5 rounded-xl border border-destructive/30 bg-destructive/90 px-3 py-1.5 text-xs font-semibold text-destructive-foreground shadow-lg backdrop-blur-sm animate-in fade-in slide-in-from-bottom-2">
+        <div className="absolute -top-10 left-4 z-20 flex items-center gap-1.5 rounded-xl border border-destructive/30 bg-destructive/90 px-3.5 py-1.5 text-xs font-semibold text-destructive-foreground shadow-lg backdrop-blur-sm animate-in fade-in slide-in-from-bottom-2">
           <AlertCircle className="size-3.5" />
           <span>한 글자 이상 입력해주세요!</span>
         </div>
       )}
 
-      {/* 빠른 선택 칩 */}
+      {/* 빠른 선택 칩 (design.md 둥근 모서리 & Vibrant Orange 오버레이) */}
       <div className="flex flex-wrap gap-2">
         {choices.map((c) => (
           <button
@@ -86,8 +86,8 @@ export function ChatInput({
             disabled={disabled}
             onClick={() => onAnswer(c.label, c.tags, c.negativeTags)}
             className={cn(
-              "rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition",
-              "hover:border-primary hover:bg-primary/5 hover:text-primary",
+              "rounded-full border border-border/80 bg-card px-4 py-2 text-sm font-semibold text-foreground transition-all duration-200",
+              "hover:border-primary hover:bg-primary/10 hover:text-primary hover:scale-[1.02]",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
               "disabled:cursor-not-allowed disabled:opacity-50",
             )}
@@ -97,11 +97,11 @@ export function ChatInput({
         ))}
       </div>
 
-      {/* 자유 입력 (최대 50자, EXC-01) */}
+      {/* 자유 입력 (최대 50자, design.md 입체감 있는 모서리) */}
       <div
         className={cn(
-          "flex items-center gap-2 rounded-2xl border border-border bg-card px-3 py-2 transition duration-200",
-          "focus-within:border-primary focus-within:ring-2 focus-within:ring-ring/40",
+          "flex items-center gap-2 rounded-2xl border border-border bg-card px-4 py-2.5 shadow-sm transition duration-200",
+          "focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/30",
           isShaking && "animate-shake border-destructive ring-2 ring-destructive/30",
         )}
       >
@@ -109,7 +109,7 @@ export function ChatInput({
           value={value}
           disabled={disabled}
           maxLength={MAX_LEN}
-          placeholder="직접 입력해도 돼요 (최대 50자)"
+          placeholder="원하는 음식을 자유롭게 말씀해주세요 (최대 50자)"
           onChange={(e) => {
             if (emptyWarning) setEmptyWarning(false)
             setValue(e.target.value.slice(0, MAX_LEN))
@@ -128,29 +128,29 @@ export function ChatInput({
               submitText()
             }
           }}
-          className="min-w-0 flex-1 bg-transparent text-[15px] text-foreground outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed"
+          className="min-w-0 flex-1 bg-transparent text-[15px] text-foreground outline-none placeholder:text-muted-foreground/70 disabled:cursor-not-allowed"
         />
 
         {/* 50자 카운터 (EXC-01) */}
         <span
           className={cn(
-            "shrink-0 text-xs tabular-nums transition-colors",
+            "shrink-0 text-xs tabular-nums font-medium transition-colors",
             isMax ? "font-bold text-destructive" : "text-muted-foreground",
           )}
         >
           {value.length}/{MAX_LEN}
         </span>
 
-        {/* 전송 버튼 (EXC-02, EXC-04) */}
+        {/* 전송 버튼 (Vibrant Orange & 호버 그림자) */}
         <button
           type="button"
           onClick={submitText}
           disabled={disabled}
           aria-label="답변 보내기"
           className={cn(
-            "flex size-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition",
-            "hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-            "disabled:cursor-not-allowed disabled:opacity-40",
+            "flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-md shadow-primary/20 transition-all duration-200",
+            "hover:scale-105 hover:bg-[#E67E00] hover:shadow-lg hover:shadow-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+            "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100",
           )}
         >
           <SendHorizontal className="size-4" />
