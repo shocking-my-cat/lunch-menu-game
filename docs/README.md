@@ -33,3 +33,4 @@ docs/
 | **[Sprint AI-1](./gemini-ai-enhancement-plan.md)** | 다이내믹 AI 대화형 스무고개 | ✅ **Done** | `/api/chat-ai`, 실시간 문맥 기반 질문 및 선택지 칩 생성 |
 | **[Sprint AI-2](./gemini-ai-enhancement-plan.md)** | 지능형 예외 입력 공감 대응 | ✅ **Done** | 엉뚱한 입력 재질문 유도, 턴 카운터 보존, 마스코트 페르소나 |
 | **[Sprint AI-3](./gemini-ai-enhancement-plan.md)** | 실시간 날씨 기반 추천 가중치 | ✅ **Done** | Geolocation + Open-Meteo, 날씨 뱃지 UI, 날씨 가중치 주입 |
+| **[Landing Page](./design-system-enhancement-plan.md)** | 톤앤매너 기반 랜딩페이지 & CTA 인입 | ✅ **Done** | `LandingView` 구축, Hero/Feature/Review/CTA, 대화 서비스 전환 |

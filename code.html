@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+
+<html lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>점심메뉴추천AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#f2f0f0",
+                        "tertiary-container": "#cba600",
+                        "on-secondary-fixed-variant": "#005228",
+                        "secondary-fixed": "#6bfe9c",
+                        "inverse-surface": "#303030",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-container": "#4c3d00",
+                        "on-error": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed-dim": "#ffb77d",
+                        "error": "#ba1a1a",
+                        "outline": "#897362",
+                        "secondary-fixed-dim": "#4ae183",
+                        "primary": "#904d00",
+                        "primary-fixed": "#ffdcc3",
+                        "on-secondary-fixed": "#00210c",
+                        "background": "#fbf9f8",
+                        "surface-tint": "#904d00",
+                        "on-background": "#1b1c1c",
+                        "tertiary": "#725c00",
+                        "on-secondary-container": "#00743a",
+                        "on-surface": "#1b1c1c",
+                        "tertiary-fixed-dim": "#ebc31d",
+                        "surface-dim": "#dbd9d9",
+                        "on-primary-fixed-variant": "#6e3900",
+                        "on-surface-variant": "#564334",
+                        "outline-variant": "#ddc1ae",
+                        "surface-container-low": "#f5f3f3",
+                        "secondary-container": "#6bfe9c",
+                        "surface-container-high": "#eae8e7",
+                        "error-container": "#ffdad6",
+                        "inverse-primary": "#ffb77d",
+                        "on-tertiary-fixed-variant": "#564500",
+                        "surface": "#fbf9f8",
+                        "on-tertiary-fixed": "#231b00",
+                        "surface-container-highest": "#e4e2e2",
+                        "surface-bright": "#fbf9f8",
+                        "surface-container": "#efeded",
+                        "tertiary-fixed": "#ffe07e",
+                        "primary-container": "#ff8c00",
+                        "secondary": "#006d37",
+                        "on-primary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "on-primary-fixed": "#2f1500",
+                        "on-primary-container": "#623200",
+                        "surface-variant": "#e4e2e2"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "24px",
+                        "xl": "64px",
+                        "sm": "12px",
+                        "base": "8px",
+                        "gutter": "20px",
+                        "xs": "4px",
+                        "container-max": "1200px",
+                        "lg": "40px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Plus Jakarta Sans", "sans-serif"],
+                        "body-lg": ["Be Vietnam Pro", "sans-serif"],
+                        "label-sm": ["Be Vietnam Pro", "sans-serif"],
+                        "body-md": ["Be Vietnam Pro", "sans-serif"],
+                        "headline-lg": ["Plus Jakarta Sans", "sans-serif"],
+                        "label-md": ["Be Vietnam Pro", "sans-serif"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans", "sans-serif"],
+                        "display-lg": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+        .bounce-hover:hover {
+            transform: translateY(-4px);
+            transition: transform 0.2s ease-in-out;
+        }
+        .soft-shadow {
+            box-shadow: 0px 4px 20px rgba(0,0,0,0.05);
+        }
+        .active-shadow {
+            box-shadow: 0px 10px 30px rgba(255,140,0,0.2);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-background/80 dark:bg-background/80 backdrop-blur-md border-b border-outline-variant dark:border-outline">
+<div class="max-w-container-max mx-auto px-gutter flex justify-between items-center h-16">
+<div class="flex items-center gap-sm">
+<span class="font-headline-md text-headline-md font-extrabold text-primary dark:text-primary-fixed">점심메뉴추천AI</span>
+</div>
+<div class="hidden md:flex gap-md font-label-md text-label-md">
+<a class="text-primary dark:text-primary-fixed font-bold border-b-2 border-primary hover:text-primary-container transition-colors active:scale-95 transition-transform" href="#how-it-works">How it Works</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary-container transition-colors active:scale-95 transition-transform" href="#features">Key Benefits</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary-container transition-colors active:scale-95 transition-transform" href="#preview">Chat Preview</a>
+</div>
+<button class="bg-primary-container text-on-primary-container font-label-md text-label-md px-4 py-2 rounded-full hover:bg-primary hover:text-on-primary transition-colors bounce-hover hidden md:inline-block">
+                Start Recommending
+            </button>
+<button class="md:hidden text-primary">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+</div>
+</nav>
+<!-- Hero Section -->
+<main class="pt-24 pb-xl px-gutter max-w-container-max mx-auto flex flex-col md:flex-row items-center gap-xl md:mt-10">
+<div class="flex-1 space-y-6 text-center md:text-left">
+<div class="inline-flex items-center gap-2 px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full font-label-sm text-label-sm mb-4">
+<span class="material-symbols-outlined filled text-sm" data-icon="restaurant">restaurant</span>
+                매일 반복되는 점심 고민 끝!
+            </div>
+<h1 class="font-display-lg text-display-lg md:text-display-lg text-primary font-extrabold tracking-tight">
+                오늘 점심 뭐 먹지?<br/>
+<span class="text-primary-container">내가 딱 정해드림!</span>
+</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-lg mx-auto md:mx-0">
+                까칠하지만 센스 있는 AI와 스무고개를 시작해보세요. 당신의 입맛을 완벽하게 저격하는 점심 메뉴를 찾아드립니다.
+            </p>
+<div class="pt-4 flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+<button class="bg-primary-container text-on-primary-container font-headline-md text-headline-md px-8 py-4 rounded-xl active-shadow bounce-hover flex items-center justify-center gap-2">
+<span class="material-symbols-outlined filled" data-icon="lunch_dining">lunch_dining</span>
+                    시작하기
+                </button>
+</div>
+</div>
+<div class="flex-1 w-full max-w-md relative">
+<img alt="Lunch Mate AI Logo" class="w-full h-auto drop-shadow-2xl rounded-2xl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvzXmeyEMklAJwAwKmxK-rU8bdj0e0iWzCr-qf2dY5vwFkabTrrBAu8djYPVfDsWaH-mK-B_RNzgil6n0ir1UOUoOtNTBQNm5WRWYvTF8OkTwXX4Cbn-_cvidk_S_Lv5Ii8sYS7u82NKFfIqY7uPvng0tR9pwPy2zFeGfkOleWDoIXgRLyGcWW0N7DeVikrJfAfF2tVVU21rNgmD_mqMXqbsxOnQDUH4BfkAZuXmZ2S7nbbHPZLFnI"/>
+</div>
+</main>
+<!-- Conversation Preview Section -->
+<section class="py-xl bg-surface-container-low px-gutter" id="preview">
+<div class="max-w-3xl mx-auto space-y-8">
+<div class="text-center space-y-2">
+<h2 class="font-headline-lg text-headline-lg md:font-headline-lg-mobile text-primary font-bold">진짜 친구랑 카톡하는 기분</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">답답한 챗봇은 가라! 재치 넘치는 티키타카를 경험해보세요.</p>
+</div>
+<div class="bg-surface rounded-2xl p-6 md:p-8 soft-shadow border border-outline-variant space-y-6 relative overflow-hidden">
+<!-- Chat Bubble AI -->
+<div class="flex gap-4">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-on-primary-container filled" data-icon="smart_toy">smart_toy</span>
+</div>
+<div class="bg-surface-container rounded-2xl rounded-tl-none p-4 max-w-[80%]">
+<p class="font-body-md text-body-md text-on-surface">배고프지? 나랑 스무고개 한 판 하면 메뉴 딱 두 개 골라줄게. 준비됐어?</p>
+</div>
+</div>
+<!-- Chat Bubble User -->
+<div class="flex gap-4 justify-end">
+<div class="bg-primary text-on-primary rounded-2xl rounded-tr-none p-4 max-w-[80%]">
+<p class="font-body-md text-body-md">빨리 골라줘, 현기증 난단 말이야. 😵‍💫</p>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="person">person</span>
+</div>
+</div>
+<!-- Chat Bubble AI -->
+<div class="flex gap-4">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-on-primary-container filled" data-icon="smart_toy">smart_toy</span>
+</div>
+<div class="bg-surface-container rounded-2xl rounded-tl-none p-4 max-w-[80%] space-y-3">
+<p class="font-body-md text-body-md text-on-surface">오케이 접수. 일단 국물? 아니면 씹는 맛?</p>
+<div class="flex gap-2 flex-wrap">
+<button class="px-4 py-2 bg-surface rounded-full border border-outline-variant text-sm text-primary hover:bg-primary-container hover:border-primary-container transition-colors">뜨끈한 국물 🍲</button>
+<button class="px-4 py-2 bg-surface rounded-full border border-outline-variant text-sm text-primary hover:bg-primary-container hover:border-primary-container transition-colors">든든하게 씹기 🥩</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Features Section -->
+<section class="py-xl px-gutter max-w-container-max mx-auto" id="features">
+<div class="text-center space-y-4 mb-12">
+<h2 class="font-headline-lg text-headline-lg text-primary font-bold">완벽한 점심을 위한 스무고개 시스템</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Feature 1 -->
+<div class="bg-surface p-8 rounded-2xl soft-shadow border border-outline-variant flex flex-col items-center text-center hover:border-primary-container transition-colors">
+<div class="w-16 h-16 rounded-full bg-secondary-container flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-on-secondary-container filled text-3xl" data-icon="forum">forum</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">위트 있는 대화</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">당신의 어떤 까다로운 조건이나 반박도 유연하고 재치 있게 받아칩니다.</p>
+</div>
+<!-- Feature 2 -->
+<div class="bg-surface p-8 rounded-2xl soft-shadow border border-outline-variant flex flex-col items-center text-center hover:border-primary-container transition-colors">
+<div class="w-16 h-16 rounded-full bg-primary-container flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-on-primary-container filled text-3xl" data-icon="track_changes">track_changes</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">정확한 취향 저격</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">단 7번의 질문만으로 오늘 당신이 진짜 먹고 싶은 메뉴의 속마음을 꿰뚫습니다.</p>
+</div>
+<!-- Feature 3 -->
+<div class="bg-surface p-8 rounded-2xl soft-shadow border border-outline-variant flex flex-col items-center text-center hover:border-primary-container transition-colors">
+<div class="w-16 h-16 rounded-full bg-tertiary-fixed flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-on-tertiary-fixed filled text-3xl" data-icon="done_all">done_all</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">깔끔한 결과</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">결정 장애를 막기 위해 최종 2가지 메뉴만 제안하고, 마음에 드는지 확인까지!</p>
+</div>
+</div>
+</section>
+<!-- Step-by-Step Guide Section -->
+<section class="py-xl bg-surface-container-low px-gutter" id="how-it-works">
+<div class="max-w-container-max mx-auto">
+<h2 class="font-headline-lg text-headline-lg text-center text-primary font-bold mb-12">사용 방법은 너무나 간단해요</h2>
+<div class="flex flex-col md:flex-row gap-8 justify-center items-stretch">
+<!-- Step 1 -->
+<div class="flex-1 bg-surface p-6 rounded-2xl border border-outline-variant soft-shadow relative">
+<div class="absolute -top-4 -left-4 w-10 h-10 rounded-full bg-primary text-on-primary font-bold flex items-center justify-center text-lg active-shadow">1</div>
+<div class="h-40 bg-surface-container rounded-xl mb-4 flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover opacity-80" data-alt="A vibrant, minimalist illustration of a smartphone screen displaying a friendly orange chat bubble icon, symbolizing the start of a conversation, set against a clean, light cream background with soft shadows." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4Un2kk8j-2xK_osyaSNWG7_Hn1ZYyRX7UR4jf7yTaFPc3VediLKE_V_b-lYmqEkZDttVyk8bHDqVOzNRZ3ZCA6pBo2KqvA4KL3NjMJTGCjU7L_ebw0Xss4IuLOH9yvOpdPHYkYdhBOU0f0T25mdd6ioN7kMj5Cj4NBs0oJWJYw6u4-i4R1QG0g47gm2TcXa2FPdxYN-SvKIKbCLVjmqZWOT47_s3muKm6FgFyrrWCut1wTQ-lMjy2"/>
+</div>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-2">채팅 시작하기</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">버튼을 눌러 AI와의 맛있는 수다를 시작하세요.</p>
+</div>
+<!-- Step 2 -->
+<div class="flex-1 bg-surface p-6 rounded-2xl border border-outline-variant soft-shadow relative">
+<div class="absolute -top-4 -left-4 w-10 h-10 rounded-full bg-primary text-on-primary font-bold flex items-center justify-center text-lg active-shadow">2</div>
+<div class="h-40 bg-surface-container rounded-xl mb-4 flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover opacity-80" data-alt="A playful, minimalist illustration showing a user avatar typing on a keyboard, with whimsical thought bubbles containing question marks and food icons like a burger and noodles, warm orange and cream tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXQlJhNYkgrvTF25bPebAvutVY6Y6GphgYLJy9Abri9V-QUpSu_8qfdygJFnZ5xQ5dVcex2zchOAZTgUuOHKTvG3JYCHaNuscMNdi3ssWVJgJ-LbZqjaLUfddKYKpcHN9mUpb1L3qIbuW56xgIRqyKw_PCJlsJhCKRoALlgPsyoYzJyWWs0uwhN8Bc5nmfMWeVFDOgYx0wqiNR5M7GA34PSkSzULsssxxxaZ3tTqiC-mXF9DNvI25e"/>
+</div>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-2">AI의 질문에 대답하기</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">솔직하게, 혹은 까칠하게 대답해도 괜찮아요. AI가 다 알아듣습니다.</p>
+</div>
+<!-- Step 3 -->
+<div class="flex-1 bg-surface p-6 rounded-2xl border border-outline-variant soft-shadow relative">
+<div class="absolute -top-4 -left-4 w-10 h-10 rounded-full bg-primary text-on-primary font-bold flex items-center justify-center text-lg active-shadow">3</div>
+<div class="h-40 bg-surface-container rounded-xl mb-4 flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover opacity-80" data-alt="A high-key, appetizing illustration of two distinct meal options presented on sleek plates, glowing softly in a well-lit minimalist environment, emphasizing a clear and definitive choice." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrmNWdl2FfbngfGILEQc86eeMzHpyOE00QoqqVvunoZUwFkBvOuWDhjuPQ35d86CjUosu2yqW6xNlpwqdV4t8WEPQPVeSOBItzWGhARzryLu2qpFk681bJJkVJYRY2oN4ZOiDwHvQOKueiR0IzbiNC057D6J-dx-bfM7__Oj6BUL96IcKU6W6ir8-bz66BkPW1RhYW1T7v480svNaA1i5ug4yaCCaRGvGGR5zYaATprBIt5WRxG0Ps"/>
+</div>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-2">추천 메뉴 고르기</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">엄선된 2개의 메뉴 중 하나를 골라 맛있게 점심을 즐기세요!</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Final CTA Section -->
+<section class="py-24 px-gutter text-center bg-primary-fixed">
+<h2 class="font-display-lg text-display-lg text-on-primary-fixed font-extrabold mb-6">배고픈데 뭐할래?</h2>
+<p class="font-body-lg text-body-lg text-on-primary-fixed-variant mb-10 max-w-2xl mx-auto">더 이상 고민하느라 점심시간을 낭비하지 마세요. 지금 바로 물어보고 맛있는 식사 하세요!</p>
+<button class="bg-primary text-on-primary font-headline-md text-headline-md px-10 py-5 rounded-2xl active-shadow bounce-hover inline-flex items-center gap-3">
+<span class="material-symbols-outlined filled" data-icon="restaurant_menu">restaurant_menu</span>
+            더 고민하지 말고 지금 물어보세요!
+        </button>
+</section>
+<!-- Footer -->
+<footer class="bg-surface-container dark:bg-surface-dark w-full py-xl bg-surface-container-high dark:bg-surface-container flat no shadows">
+<div class="max-w-container-max mx-auto px-gutter flex flex-col md:flex-row justify-between items-center gap-md">
+<div class="font-headline-md text-headline-md font-bold text-primary">점심메뉴추천AI</div>
+<div class="flex flex-wrap justify-center gap-4 font-label-sm text-label-sm text-on-surface-variant dark:text-outline">
+<a class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="hover:text-primary transition-colors" href="#">Terms of Service</a>
+<a class="hover:text-primary transition-colors" href="#">Contact Us</a>
+<a class="hover:text-primary transition-colors" href="#">Instagram</a>
+<a class="hover:text-primary transition-colors" href="#">Twitter</a>
+</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant dark:text-outline text-center md:text-right">
+                © 2024 LunchAI. All your lunch dilemmas solved with wit.
+            </div>
+</div>
+</footer>
+</body></html>

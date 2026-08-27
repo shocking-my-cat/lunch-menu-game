@@ -31,7 +31,7 @@ const TYPING_MS = 650
 const TIMEOUT_THRESHOLD_MS = 10000 // 10초 이상 지연 시 타임아웃 처리 (EXC-03)
 const MAX_AI_STEPS = 5 // AI 대화 스무고개 최대 턴 수
 
-export function LunchApp() {
+export function LunchApp({ initialStart = false }: { initialStart?: boolean }) {
   const [phase, setPhase] = useState<Phase>("idle")
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [questions, setQuestions] = useState<Question[]>(BASE_QUESTIONS)
@@ -54,6 +54,13 @@ export function LunchApp() {
   const scrollRef = useRef<HTMLDivElement>(null)
 
   const nextId = () => `m_${Date.now()}_${idRef.current++}`
+
+  // 랜딩페이지 인입 시 자동 시작
+  useEffect(() => {
+    if (initialStart) {
+      start()
+    }
+  }, [initialStart])
 
   // 스크롤 최하단 자동 동기화
   useEffect(() => {
