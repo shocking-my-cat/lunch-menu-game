@@ -24,7 +24,7 @@
 | **EXC-04** | **예외 처리 4: 로딩 표시** | 질문 생성 및 메뉴 추천 처리 중 명확한 로딩 인디케이터 | Sprint 1, 3 | `message-bubble.tsx` | ✅ Done |
 | **EXC-05** | **예외 처리 5: 화면 무중단** | 예외/오류 발생 시 화면 크래시 방지 (Error Boundary) | Sprint 3 | `error-boundary.tsx`, `profanity-guard.ts` | ✅ Done |
 | **CST-01** | **제약조건 준수** | 로그인/결제/DB/외부 API 없음, 새로고침 시 초기화 | 전체 | 프로젝트 전반 | ✅ Done |
-| **CST-02** | **데스크톱 최적화** | 1440×900 해상도 중심 단일 뷰 최적화 (프론트 전용) | Sprint 4 | `globals.css`, `lunch-app.tsx` | 🔄 In Progress |
+| **CST-02** | **데스크톱 최적화** | 1440×900 해상도 중심 단일 뷰 최적화 (프론트 전용) | Sprint 4 | `globals.css`, `lunch-app.tsx` | ✅ Done |
 
 ---
 

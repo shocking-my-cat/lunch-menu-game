@@ -18,8 +18,8 @@ const notoSansKr = Noto_Sans_KR({
 })
 
 export const metadata: Metadata = {
-  title: '점심 메뉴 스무고개',
-  description: '스무고개로 오늘 점심 메뉴를 대신 정해드려요.',
+  title: '점심 메뉴 스무고개 | AI가 골라주는 오늘 점심 추천',
+  description: '내가 점심 메뉴 추천해줌! 스무고개 대화로 입맛과 상황에 딱 맞는 점심 메뉴 1순위와 2순위를 골라드려요.',
   generator: 'v0.app',
   icons: {
     icon: [

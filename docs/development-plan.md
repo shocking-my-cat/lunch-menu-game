@@ -69,7 +69,7 @@ gantt
     section Sprint 3
     5대 예외 처리 및 에러 방어 체계 :done, s3, after s2, 1d
     section Sprint 4
-    UI/UX 고도화, 데스크톱 최적화 및 QA :active, s4, after s3, 1d
+    UI/UX 고도화, 데스크톱 최적화 및 QA :done, s4, after s3, 1d
 ```
 
 ---
@@ -127,6 +127,7 @@ gantt
 
 ### 🏃 Sprint 4: UI/UX 고도화, 데스크톱 최적화 및 종합 QA (Polish & QA)
 - **목표**: PRD 디자인 브리프(1440×900 데스크톱 최적화, Idle 화면, 축하 화면) 충족 및 최종 E2E 검증
+- **상태**: ✅ **완료 (Completed)**
 - **주요 태스크**:
   - 초기 화면 (Idle): “내가 점심 메뉴 추천해줌” 타이포 + “시작하기” CTA + 마스코트 일러스트
   - 결과 화면 (Result): 1순위/2순위 카드 UI 디자인 개선 + [Yes]/[No] 명확한 액션 배치
@@ -134,10 +135,10 @@ gantt
   - 반응형 및 1440×900 데스크톱 뷰포트 최적화
   - 전체 사용자 시나리오 E2E 테스트 및 PRD 요구사항 검증표 대조
 - **산출물**:
-  - `components/lunch/idle-screen.tsx`
-  - `components/lunch/result-view.tsx`
-  - `components/lunch/confetti.tsx`
-  - `docs/prd-traceability-matrix.md` (최종 완료 체크)
+  - `components/lunch/idle-screen.tsx` (초기 화면 인터랙션 및 타이포 완성)
+  - `components/lunch/result-view.tsx` (1/2순위 추천 뷰 & Done 확정 뷰)
+  - `components/lunch/confetti.tsx` (경량 폭죽 파티클 애니메이션)
+  - `docs/prd-traceability-matrix.md` (전체 요구사항 100% 충족 검증)
 - **상세 문서**: [Sprint 4 상세 계획](./sprints/sprint-4-ui-ux-polish-qa.md)
 
 ---
