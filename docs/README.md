@@ -29,3 +29,6 @@ docs/
 | **[Sprint 2](./sprints/sprint-2-recommendation-engine.md)** | 자유 텍스트 키워드 파싱, 다차원 가중치 추천, 1/2순위 추천 | ✅ **Done** | 자연어 키워드 매퍼, 추천 스코어링 엔진, 24종 메뉴 풀 |
 | **[Sprint 3](./sprints/sprint-3-exception-handling.md)** | PRD 5대 예외 처리, 비속어/이상 입력 대응, 타임아웃/재시도 | ✅ **Done** | 50자 제한 UX, 빈 입력 방어, 타임아웃 Fallback, Error Boundary, 비속어 가드 |
 | **[Sprint 4](./sprints/sprint-4-ui-ux-polish-qa.md)** | 데스크톱 1440x900 최적화, 애니메이션/효과, 종합 QA | ✅ **Done** | Idle 타이포 & CTA, 완료 화면 축하 컨페티, 1440x900 최적화 |
+| **[Sprint AI-1](./gemini-ai-enhancement-plan.md)** | 다이내믹 AI 대화형 스무고개 | ✅ **Done** | `/api/chat-ai`, 실시간 문맥 기반 질문 및 선택지 칩 생성 |
+| **[Sprint AI-2](./gemini-ai-enhancement-plan.md)** | 지능형 예외 입력 공감 대응 | ✅ **Done** | 엉뚱한 입력 재질문 유도, 턴 카운터 보존, 마스코트 페르소나 |
+| **[Sprint AI-3](./gemini-ai-enhancement-plan.md)** | 실시간 날씨 기반 추천 가중치 | ✅ **Done** | Geolocation + Open-Meteo, 날씨 뱃지 UI, 날씨 가중치 주입 |

@@ -1,11 +1,12 @@
 "use client"
 
 import { useEffect, useRef, useState, useCallback } from "react"
-import { RotateCcw, Sparkles, Utensils } from "lucide-react"
+import { RotateCcw, Sparkles, Utensils, Bot } from "lucide-react"
 import {
   BASE_QUESTIONS,
   FOLLOWUP_QUESTIONS,
   type Answer,
+  type Choice,
   type Menu,
   type Question,
 } from "@/lib/lunch-data"
@@ -22,11 +23,13 @@ import {
 import { ResultView, DoneView } from "./result-view"
 import { TimeoutFallback } from "./timeout-fallback"
 
+import { fetchCurrentWeather, type WeatherInfo } from "@/lib/weather"
+
 export type Phase = "idle" | "chat" | "recommending" | "result" | "done"
 
 const TYPING_MS = 650
-const RECOMMEND_DELAY_MS = 1200
 const TIMEOUT_THRESHOLD_MS = 10000 // 10초 이상 지연 시 타임아웃 처리 (EXC-03)
+const MAX_AI_STEPS = 5 // AI 대화 스무고개 최대 턴 수
 
 export function LunchApp() {
   const [phase, setPhase] = useState<Phase>("idle")
@@ -41,6 +44,9 @@ export function LunchApp() {
   const [recommendations, setRecommendations] = useState<Menu[]>([])
   const [acceptedMenu, setAcceptedMenu] = useState<Menu | null>(null)
   const [isTimeout, setIsTimeout] = useState(false)
+  const [currentChoices, setCurrentChoices] = useState<Choice[]>([])
+  const [isAiMode, setIsAiMode] = useState(true)
+  const [weather, setWeather] = useState<WeatherInfo | null>(null)
 
   const idRef = useRef(0)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -83,22 +89,59 @@ export function LunchApp() {
     setIsTimeout(false)
   }, [])
 
-  const postQuestion = useCallback((qs: Question[], index: number) => {
+  // 질문 및 칩 노출 (AI 또는 Fallback)
+  const postAIQuestion = useCallback(async (
+    stepIndex: number,
+    chatHistory: ChatMessage[],
+    qs: Question[]
+  ) => {
     setTyping(true)
     setInputEnabled(false)
     setIsTimeout(false)
     startTimeoutGuard()
 
-    if (timerRef.current) clearTimeout(timerRef.current)
-    timerRef.current = setTimeout(() => {
+    try {
+      // 1. AI API 호출 시도 (/api/chat-ai)
+      const res = await fetch("/api/chat-ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          history: chatHistory.map((m) => ({ role: m.role, text: m.text })),
+          step: stepIndex + 1,
+          maxSteps: MAX_AI_STEPS,
+        }),
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        if (data.question && Array.isArray(data.choices)) {
+          clearTimeoutGuard()
+          setTyping(false)
+          setMessages((prev) => [
+            ...prev,
+            { id: nextId(), role: "assistant", text: data.question },
+          ])
+          setCurrentChoices(data.choices)
+          setInputEnabled(true)
+          setIsAiMode(data.mode === "gemini-ai")
+          return { isAmbiguous: !!data.isAmbiguous }
+        }
+      }
+      throw new Error("Failed to get AI question")
+    } catch (err) {
+      console.warn("AI Question fallback to static question:", err)
       clearTimeoutGuard()
       setTyping(false)
+      const fallbackQ = qs[stepIndex] || BASE_QUESTIONS[0]
       setMessages((prev) => [
         ...prev,
-        { id: nextId(), role: "assistant", text: qs[index].prompt },
+        { id: nextId(), role: "assistant", text: fallbackQ.prompt },
       ])
+      setCurrentChoices(fallbackQ.choices)
       setInputEnabled(true)
-    }, TYPING_MS)
+      setIsAiMode(false)
+      return { isAmbiguous: false }
+    }
   }, [startTimeoutGuard, clearTimeoutGuard])
 
   const finish = useCallback(async (allAnswers: Answer[], excludeList: string[]) => {
@@ -112,7 +155,7 @@ export function LunchApp() {
       const res = await fetch("/api/recommend-ai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ answers: allAnswers, excluded: excludeList }),
+        body: JSON.stringify({ answers: allAnswers, excluded: excludeList, weather }),
       })
 
       if (res.ok) {
@@ -132,19 +175,18 @@ export function LunchApp() {
       setRecommendations(recs)
       setPhase("result")
     }
-  }, [startTimeoutGuard, clearTimeoutGuard])
+  }, [startTimeoutGuard, clearTimeoutGuard, weather])
 
-  const start = () => {
+  const start = async () => {
     if (timerRef.current) clearTimeout(timerRef.current)
     clearTimeoutGuard()
     setPhase("chat")
-    setMessages([
-      {
-        id: nextId(),
-        role: "assistant",
-        text: "좋아요! 오늘 입맛과 상황에 딱 맞는 점심 메뉴를 찾아드릴게요. 편하게 답해주세요 🍽️",
-      },
-    ])
+    const initialMessage: ChatMessage = {
+      id: nextId(),
+      role: "assistant",
+      text: "좋아요! 오늘 입맛과 상황에 딱 맞는 점심 메뉴를 AI가 맞춰볼게요. 편하게 답해주세요 🍽️",
+    }
+    setMessages([initialMessage])
     setQuestions(BASE_QUESTIONS)
     setCurrentIndex(0)
     setAnswers([])
@@ -152,13 +194,18 @@ export function LunchApp() {
     setRound(1)
     setRecommendations([])
     setAcceptedMenu(null)
-    postQuestion(BASE_QUESTIONS, 0)
+    setIsAiMode(true)
+
+    // 날씨 정보 탐지
+    fetchCurrentWeather().then((w) => setWeather(w))
+
+    postAIQuestion(0, [initialMessage], BASE_QUESTIONS)
   }
 
-  const handleAnswer = (value: string, tags: string[], negativeTags?: string[]) => {
+  const handleAnswer = async (value: string, tags: string[], negativeTags?: string[]) => {
     if (!inputEnabled || phase !== "chat") return
 
-    // 비속어 방어 (EXC-05 확장): 비속어 감지 시 공격성 차단 및 위트 있는 멘트 응답
+    // 비속어 방어 (EXC-05): 비속어 감지 시 공격성 차단 및 위트 있는 멘트 응답
     if (checkProfanity(value)) {
       setMessages((prev) => [
         ...prev,
@@ -168,16 +215,27 @@ export function LunchApp() {
       return
     }
 
-    const q = questions[currentIndex]
-    const answer: Answer = { questionId: q.id, value, tags, negativeTags }
+    const currentQId = `q_${currentIndex}`
+    const answer: Answer = { questionId: currentQId, value, tags, negativeTags }
     const nextAnswers = [...answers, answer]
     setAnswers(nextAnswers)
-    setMessages((prev) => [...prev, { id: nextId(), role: "user", text: value }])
+
+    const userMsg: ChatMessage = { id: nextId(), role: "user", text: value }
+    const nextMessages = [...messages, userMsg]
+    setMessages(nextMessages)
+
+    const result = await postAIQuestion(currentIndex, nextMessages, questions)
+    
+    // 엉뚱하거나 모호한 답변으로 재질문된 경우 턴 카운트를 올리지 않음 (Sprint AI-2)
+    if (result?.isAmbiguous) {
+      return
+    }
 
     const nextIndex = currentIndex + 1
-    if (nextIndex < questions.length) {
+    const totalSteps = isAiMode ? MAX_AI_STEPS : questions.length
+
+    if (nextIndex < totalSteps) {
       setCurrentIndex(nextIndex)
-      postQuestion(questions, nextIndex)
     } else {
       finish(nextAnswers, excluded)
     }
@@ -186,7 +244,7 @@ export function LunchApp() {
   const handleRetry = () => {
     clearTimeoutGuard()
     if (phase === "chat") {
-      postQuestion(questions, currentIndex)
+      postAIQuestion(currentIndex, messages, questions)
     } else if (phase === "recommending") {
       finish(answers, excluded)
     }
@@ -205,16 +263,16 @@ export function LunchApp() {
     setCurrentIndex(0)
     setRecommendations([])
     setPhase("chat")
-    setMessages((prev) => [
-      ...prev,
-      { id: nextId(), role: "user", text: "음... 다른 추천은 없을까요?" },
-      {
-        id: nextId(),
-        role: "assistant",
-        text: "알겠어요! 방금 메뉴는 제외하고 딱 2가지만 더 여쭤볼게요.",
-      },
-    ])
-    postQuestion(FOLLOWUP_QUESTIONS, 0)
+    
+    const rejectUserMsg: ChatMessage = { id: nextId(), role: "user", text: "음... 다른 추천은 없을까요?" }
+    const assistantAckMsg: ChatMessage = {
+      id: nextId(),
+      role: "assistant",
+      text: "알겠어요! 방금 메뉴는 제외하고 딱 2가지만 더 여쭤볼게요 🤖",
+    }
+    const nextMsgs = [...messages, rejectUserMsg, assistantAckMsg]
+    setMessages(nextMsgs)
+    postAIQuestion(0, nextMsgs, FOLLOWUP_QUESTIONS)
   }
 
   const reset = () => {
@@ -229,7 +287,7 @@ export function LunchApp() {
     setRound(1)
   }
 
-  const total = questions.length
+  const total = isAiMode ? MAX_AI_STEPS : questions.length
   const step = Math.min(currentIndex + 1, total)
   const isFollowup = round > 1
 
@@ -241,10 +299,22 @@ export function LunchApp() {
           <div className="flex size-8 items-center justify-center rounded-xl bg-primary/10 text-primary">
             <Utensils className="size-4" />
           </div>
-          <div>
+          <div className="flex items-center gap-2">
             <span className="font-serif text-lg font-bold tracking-tight text-foreground">
               점심 메뉴 스무고개
             </span>
+            {isAiMode && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold text-primary border border-primary/20">
+                <Bot className="size-3" />
+                Gemini 2.5 AI
+              </span>
+            )}
+            {weather && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-secondary/80 px-2 py-0.5 text-[10px] font-medium text-secondary-foreground border border-border/40">
+                <span>{weather.emoji}</span>
+                <span>{weather.label}</span>
+              </span>
+            )}
           </div>
         </div>
 
@@ -252,7 +322,7 @@ export function LunchApp() {
           {(phase === "chat" || phase === "recommending") && (
             <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1 text-xs font-semibold tabular-nums text-secondary-foreground border border-border/50">
               <Sparkles className="size-3 text-primary" />
-              {isFollowup ? `재추천 질문 ${step}/${total}` : `질문 ${step}/${total}`}
+              {isFollowup ? `재추천 질문 ${step}/${questions.length}` : `AI 질문 ${step}/${total}`}
             </span>
           )}
           {phase !== "idle" && (
@@ -307,7 +377,7 @@ export function LunchApp() {
       {phase === "chat" && (
         <footer className="border-t border-border bg-card/95 p-4 backdrop-blur-sm">
           <ChatInput
-            choices={questions[currentIndex]?.choices ?? []}
+            choices={currentChoices.length > 0 ? currentChoices : (questions[currentIndex]?.choices ?? [])}
             disabled={!inputEnabled || isTimeout}
             onAnswer={handleAnswer}
           />
