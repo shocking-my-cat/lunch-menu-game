@@ -67,9 +67,9 @@ gantt
     section Sprint 2
     자연어 매핑 및 추천 알고리즘 :done, s2, after s1, 1d
     section Sprint 3
-    5대 예외 처리 및 에러 방어 체계 :active, s3, after s2, 1d
+    5대 예외 처리 및 에러 방어 체계 :done, s3, after s2, 1d
     section Sprint 4
-    UI/UX 고도화, 데스크톱 최적화 및 QA :s4, after s3, 1d
+    UI/UX 고도화, 데스크톱 최적화 및 QA :active, s4, after s3, 1d
 ```
 
 ---
@@ -109,17 +109,18 @@ gantt
 
 ### 🏃 Sprint 3: 5대 필수 예외 처리 & 안정성 확보 (Exception Handling)
 - **목표**: PRD에서 요구한 5가지 핵심 예외 처리 및 비정상 입력 방어 체계 구현
+- **상태**: ✅ **완료 (Completed)**
 - **주요 태스크**:
-  1. **입력 50자 제한**: 50자 도달 시 입력 차단 및 실시간 시각 피드백 (경고 스타일)
-  2. **빈 입력 방어**: 공백 또는 빈 문자열 전송 시 차단 및 인라인/토스트 안내 메시지 표시
+  1. **입력 50자 제한**: 50자 도달 시 입력 차단, 붙여넣기 50자 절삭, `text-destructive` 경고 카운터
+  2. **빈 입력 방어**: 공백 또는 빈 문자열 전송 시 차단, shake 애니메이션 및 "한 글자 이상 입력해주세요!" 툴팁 표시
   3. **응답 지연/타임아웃**: AI 답변 지연 시뮬레이션 및 "다시 시도하기" 재시도 버튼 노출
   4. **처리 중 로딩 표시**: "메뉴 추천 중..." 전용 로딩 인디케이터 및 인터랙션 비활성화
-  5. **화면 무중단 보장 (Crash-proof)**: React Error Boundary 구현 및 데이터 소진 시 Fallback 추천
-  6. *(추가)* 거친 표현/욕설 입력 시 위트 있는 방어 응답 및 대화 정상 유도
+  5. **화면 무중단 보장 (Crash-proof)**: React Error Boundary 구현 및 비속어 위트 방어 체계 구축
 - **산출물**:
-  - `components/lunch/error-boundary.tsx`
-  - `components/lunch/timeout-fallback.tsx`
-  - `lib/exception-guard.ts`
+  - `components/lunch/error-boundary.tsx` (앱 크래시 방지 Error Boundary)
+  - `components/lunch/timeout-fallback.tsx` (타임아웃 Fallback 및 재시도 UI)
+  - `lib/profanity-guard.ts` (비속어 감지 및 위트 있는 대화 유도)
+  - `components/lunch/chat-input.tsx` (50자 제한 & 빈 입력 방어 완성)
 - **상세 문서**: [Sprint 3 상세 계획](./sprints/sprint-3-exception-handling.md)
 
 ---

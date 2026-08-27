@@ -18,11 +18,11 @@
 | **REQ-08** | **2가지 메뉴 추천 (1/2순위)** | 결과 화면에 1순위, 2순위 메뉴 카드 및 추천 사유 표시 | Sprint 2, 4 | `result-view.tsx`, `recommend-engine.ts` | ✅ Done |
 | **REQ-09** | **결과 피드백 (Yes/No)** | “추천받은 메뉴가 마음에 들었나요” + [Yes], [No] 버튼 | Sprint 1, 4 | `result-view.tsx` | ✅ Done |
 | **REQ-10** | **재추천 루프 (No 선택 시)** | 이전 추천 메뉴 제외 + 2개 내외 추가 질문 후 재추천 | Sprint 1, 2 | `lunch-app.tsx`, `lunch-data.ts` | ✅ Done |
-| **EXC-01** | **예외 처리 1: 50자 제한** | 입력 최대 50자 제한, 실시간 글자수 및 초과 방지 | Sprint 3 | `chat-input.tsx` | ⏳ Ready |
-| **EXC-02** | **예외 처리 2: 빈 입력 방어** | 빈 값 또는 공백 전송 시 안내 문구 표시 및 전송 차단 | Sprint 3 | `chat-input.tsx` | ⏳ Ready |
-| **EXC-03** | **예외 처리 3: 지연/타임아웃** | AI 답변 지연 시 "다시 시도하기" 버튼 노출 | Sprint 3 | `lunch-app.tsx`, `timeout-fallback.tsx` | ⏳ Ready |
+| **EXC-01** | **예외 처리 1: 50자 제한** | 입력 최대 50자 제한, 실시간 글자수 및 초과 방지 | Sprint 3 | `chat-input.tsx` | ✅ Done |
+| **EXC-02** | **예외 처리 2: 빈 입력 방어** | 빈 값 또는 공백 전송 시 안내 문구 표시 및 전송 차단 | Sprint 3 | `chat-input.tsx` | ✅ Done |
+| **EXC-03** | **예외 처리 3: 지연/타임아웃** | AI 답변 지연 시 "다시 시도하기" 버튼 노출 | Sprint 3 | `lunch-app.tsx`, `timeout-fallback.tsx` | ✅ Done |
 | **EXC-04** | **예외 처리 4: 로딩 표시** | 질문 생성 및 메뉴 추천 처리 중 명확한 로딩 인디케이터 | Sprint 1, 3 | `message-bubble.tsx` | ✅ Done |
-| **EXC-05** | **예외 처리 5: 화면 무중단** | 예외/오류 발생 시 화면 크래시 방지 (Error Boundary) | Sprint 3 | `error-boundary.tsx` | ⏳ Ready |
+| **EXC-05** | **예외 처리 5: 화면 무중단** | 예외/오류 발생 시 화면 크래시 방지 (Error Boundary) | Sprint 3 | `error-boundary.tsx`, `profanity-guard.ts` | ✅ Done |
 | **CST-01** | **제약조건 준수** | 로그인/결제/DB/외부 API 없음, 새로고침 시 초기화 | 전체 | 프로젝트 전반 | ✅ Done |
 | **CST-02** | **데스크톱 최적화** | 1440×900 해상도 중심 단일 뷰 최적화 (프론트 전용) | Sprint 4 | `globals.css`, `lunch-app.tsx` | 🔄 In Progress |
 
@@ -37,5 +37,5 @@
 - [x] 4. 대화 종료 시 "메뉴 추천 중..." 로딩 후 1순위, 2순위 메뉴 카드가 뜬다.
 - [x] 5. [Yes] 클릭 시 "축하합니다!" 문구와 함께 최종 확정 화면이 나온다.
 - [x] 6. [No] 클릭 시 이전 2가지 메뉴가 제외된 상태로 2개의 추가 질문이 진행되고 새 메뉴가 추천된다.
-- [ ] 7. 5가지 필수 예외 처리(50자 초과 방지, 빈 입력 방지, 타임아웃 재시도, 로딩 표시, 에러 복구)가 모두 동작한다. (Sprint 3 예정)
+- [x] 7. 5가지 필수 예외 처리(50자 초과 방지, 빈 입력 방지, 타임아웃 재시도, 로딩 표시, 에러 복구)가 모두 동작한다.
 - [x] 8. 로그인, DB, 외부 네트워크 통신 없이 브라우저 단독으로 100% 동작한다.

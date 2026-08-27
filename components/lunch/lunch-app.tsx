@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useCallback } from "react"
 import { RotateCcw, Sparkles, Utensils } from "lucide-react"
 import {
   BASE_QUESTIONS,
@@ -10,6 +10,7 @@ import {
   type Question,
 } from "@/lib/lunch-data"
 import { recommend } from "@/lib/recommend-engine"
+import { checkProfanity, getRandomProfanityResponse } from "@/lib/profanity-guard"
 import { ChatInput } from "./chat-input"
 import { IdleScreen } from "./idle-screen"
 import {
@@ -19,11 +20,13 @@ import {
   type ChatMessage,
 } from "./message-bubble"
 import { ResultView, DoneView } from "./result-view"
+import { TimeoutFallback } from "./timeout-fallback"
 
 export type Phase = "idle" | "chat" | "recommending" | "result" | "done"
 
 const TYPING_MS = 650
 const RECOMMEND_DELAY_MS = 1200
+const TIMEOUT_THRESHOLD_MS = 10000 // 10초 이상 지연 시 타임아웃 처리 (EXC-03)
 
 export function LunchApp() {
   const [phase, setPhase] = useState<Phase>("idle")
@@ -37,14 +40,16 @@ export function LunchApp() {
   const [inputEnabled, setInputEnabled] = useState(false)
   const [recommendations, setRecommendations] = useState<Menu[]>([])
   const [acceptedMenu, setAcceptedMenu] = useState<Menu | null>(null)
+  const [isTimeout, setIsTimeout] = useState(false)
 
   const idRef = useRef(0)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const timeoutTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   const nextId = () => `m_${Date.now()}_${idRef.current++}`
 
-  // 새 메시지/상태 변화 시 항상 최신 대화가 보이도록 스크롤
+  // 스크롤 최하단 자동 동기화
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTo({
@@ -52,21 +57,41 @@ export function LunchApp() {
         behavior: "smooth",
       })
     }
-  }, [messages, typing, phase, recommendations])
+  }, [messages, typing, phase, recommendations, isTimeout])
 
   // 언마운트 시 활성 타이머 정리
   useEffect(() => {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current)
+      if (timeoutTimerRef.current) clearTimeout(timeoutTimerRef.current)
     }
   }, [])
 
-  const postQuestion = (qs: Question[], index: number) => {
+  const startTimeoutGuard = useCallback(() => {
+    if (timeoutTimerRef.current) clearTimeout(timeoutTimerRef.current)
+    timeoutTimerRef.current = setTimeout(() => {
+      setIsTimeout(true)
+      setTyping(false)
+    }, TIMEOUT_THRESHOLD_MS)
+  }, [])
+
+  const clearTimeoutGuard = useCallback(() => {
+    if (timeoutTimerRef.current) {
+      clearTimeout(timeoutTimerRef.current)
+      timeoutTimerRef.current = null
+    }
+    setIsTimeout(false)
+  }, [])
+
+  const postQuestion = useCallback((qs: Question[], index: number) => {
     setTyping(true)
     setInputEnabled(false)
+    setIsTimeout(false)
+    startTimeoutGuard()
 
     if (timerRef.current) clearTimeout(timerRef.current)
     timerRef.current = setTimeout(() => {
+      clearTimeoutGuard()
       setTyping(false)
       setMessages((prev) => [
         ...prev,
@@ -74,10 +99,34 @@ export function LunchApp() {
       ])
       setInputEnabled(true)
     }, TYPING_MS)
-  }
+  }, [startTimeoutGuard, clearTimeoutGuard])
+
+  const finish = useCallback((allAnswers: Answer[], excludeList: string[]) => {
+    setPhase("recommending")
+    setInputEnabled(false)
+    setTyping(false)
+    setIsTimeout(false)
+    startTimeoutGuard()
+
+    if (timerRef.current) clearTimeout(timerRef.current)
+    timerRef.current = setTimeout(() => {
+      clearTimeoutGuard()
+      try {
+        const recs = recommend(allAnswers, excludeList)
+        setRecommendations(recs)
+        setPhase("result")
+      } catch (err) {
+        console.error("Recommendation error:", err)
+        // Fallback 추천 처리
+        setRecommendations(recommend(allAnswers, []))
+        setPhase("result")
+      }
+    }, RECOMMEND_DELAY_MS)
+  }, [startTimeoutGuard, clearTimeoutGuard])
 
   const start = () => {
     if (timerRef.current) clearTimeout(timerRef.current)
+    clearTimeoutGuard()
     setPhase("chat")
     setMessages([
       {
@@ -96,21 +145,18 @@ export function LunchApp() {
     postQuestion(BASE_QUESTIONS, 0)
   }
 
-  const finish = (allAnswers: Answer[], excludeList: string[]) => {
-    setPhase("recommending")
-    setInputEnabled(false)
-    setTyping(false)
-
-    if (timerRef.current) clearTimeout(timerRef.current)
-    timerRef.current = setTimeout(() => {
-      const recs = recommend(allAnswers, excludeList)
-      setRecommendations(recs)
-      setPhase("result")
-    }, RECOMMEND_DELAY_MS)
-  }
-
   const handleAnswer = (value: string, tags: string[], negativeTags?: string[]) => {
     if (!inputEnabled || phase !== "chat") return
+
+    // 비속어 방어 (EXC-05 확장): 비속어 감지 시 공격성 차단 및 위트 있는 멘트 응답
+    if (checkProfanity(value)) {
+      setMessages((prev) => [
+        ...prev,
+        { id: nextId(), role: "user", text: value },
+        { id: nextId(), role: "assistant", text: getRandomProfanityResponse() },
+      ])
+      return
+    }
 
     const q = questions[currentIndex]
     const answer: Answer = { questionId: q.id, value, tags, negativeTags }
@@ -124,6 +170,15 @@ export function LunchApp() {
       postQuestion(questions, nextIndex)
     } else {
       finish(nextAnswers, excluded)
+    }
+  }
+
+  const handleRetry = () => {
+    clearTimeoutGuard()
+    if (phase === "chat") {
+      postQuestion(questions, currentIndex)
+    } else if (phase === "recommending") {
+      finish(answers, excluded)
     }
   }
 
@@ -154,6 +209,7 @@ export function LunchApp() {
 
   const reset = () => {
     if (timerRef.current) clearTimeout(timerRef.current)
+    clearTimeoutGuard()
     setPhase("idle")
     setMessages([])
     setTyping(false)
@@ -215,7 +271,10 @@ export function LunchApp() {
 
           {typing && <TypingBubble />}
 
-          {phase === "recommending" && <RecommendingBubble />}
+          {/* 타임아웃 발생 시 재시도 fallback 노출 (EXC-03) */}
+          {isTimeout && <TimeoutFallback onRetry={handleRetry} />}
+
+          {phase === "recommending" && !isTimeout && <RecommendingBubble />}
 
           {phase === "result" && recommendations.length > 0 && (
             <ResultView
@@ -234,12 +293,12 @@ export function LunchApp() {
         </div>
       )}
 
-      {/* 입력 영역 (질문 진행 단계에서만 노출) */}
+      {/* 입력 영역 (질문 진행 단계에서만 노출, 로딩/타임아웃 중 완전 비활성화 EXC-04) */}
       {phase === "chat" && (
         <footer className="border-t border-border bg-card/95 p-4 backdrop-blur-sm">
           <ChatInput
             choices={questions[currentIndex]?.choices ?? []}
-            disabled={!inputEnabled}
+            disabled={!inputEnabled || isTimeout}
             onAnswer={handleAnswer}
           />
         </footer>
