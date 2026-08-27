@@ -101,27 +101,37 @@ export function LunchApp() {
     }, TYPING_MS)
   }, [startTimeoutGuard, clearTimeoutGuard])
 
-  const finish = useCallback((allAnswers: Answer[], excludeList: string[]) => {
+  const finish = useCallback(async (allAnswers: Answer[], excludeList: string[]) => {
     setPhase("recommending")
     setInputEnabled(false)
     setTyping(false)
     setIsTimeout(false)
     startTimeoutGuard()
 
-    if (timerRef.current) clearTimeout(timerRef.current)
-    timerRef.current = setTimeout(() => {
-      clearTimeoutGuard()
-      try {
-        const recs = recommend(allAnswers, excludeList)
-        setRecommendations(recs)
-        setPhase("result")
-      } catch (err) {
-        console.error("Recommendation error:", err)
-        // Fallback 추천 처리
-        setRecommendations(recommend(allAnswers, []))
-        setPhase("result")
+    try {
+      const res = await fetch("/api/recommend-ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ answers: allAnswers, excluded: excludeList }),
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        if (data.recommendations && data.recommendations.length > 0) {
+          clearTimeoutGuard()
+          setRecommendations(data.recommendations)
+          setPhase("result")
+          return
+        }
       }
-    }, RECOMMEND_DELAY_MS)
+      throw new Error("Failed to get AI recommendations")
+    } catch (err) {
+      console.warn("AI recommendation fallback to rule-based:", err)
+      clearTimeoutGuard()
+      const recs = recommend(allAnswers, excludeList)
+      setRecommendations(recs)
+      setPhase("result")
+    }
   }, [startTimeoutGuard, clearTimeoutGuard])
 
   const start = () => {

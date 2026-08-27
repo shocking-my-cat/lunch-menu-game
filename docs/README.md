@@ -11,6 +11,7 @@ docs/
 ├── README.md                           # 문서 인덱스 및 개발 관리 가이드 (본 파일)
 ├── development-plan.md                 # 마스터 개발 계획서 (스프린트 로드맵 종합)
 ├── prd-traceability-matrix.md          # PRD 요구사항 추적 매트릭스 및 검증 기준
+├── gemini-ai-enhancement-plan.md       # 🤖 Gemini AI 기반 서비스 전환 및 개발 개선 계획서
 └── sprints/                            # 스프린트별 상세 실행 계획
     ├── sprint-1-core-interaction.md    # Sprint 1: 핵심 대화 인터랙션 & 상태 머신 [✅ 완료]
     ├── sprint-2-recommendation-engine.md # Sprint 2: 텍스트 분석 & 추천 알고리즘 고도화 [✅ 완료]
